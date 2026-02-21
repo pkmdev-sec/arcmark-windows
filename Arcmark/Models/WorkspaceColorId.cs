@@ -1,23 +1,65 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows.Media;
 
 namespace Arcmark.Models;
 
 /// <summary>
-/// Color identifier for a workspace. The JSON string values are lowercase to match
-/// the macOS Swift enum's default raw-value encoding (e.g. "sky", "blush").
+/// Color identifier for a workspace. Serializes as lowercase strings to match
+/// the macOS Swift enum's raw-value encoding (e.g. "sky", "blush").
+/// Uses a custom converter since JsonStringEnumMemberName is .NET 9+ only.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<WorkspaceColorId>))]
+[JsonConverter(typeof(WorkspaceColorIdConverter))]
 public enum WorkspaceColorId
 {
-    [JsonStringEnumMemberName("blush")]     Blush,
-    [JsonStringEnumMemberName("apricot")]   Apricot,
-    [JsonStringEnumMemberName("butter")]    Butter,
-    [JsonStringEnumMemberName("leaf")]      Leaf,
-    [JsonStringEnumMemberName("mint")]      Mint,
-    [JsonStringEnumMemberName("sky")]       Sky,
-    [JsonStringEnumMemberName("periwinkle")]Periwinkle,
-    [JsonStringEnumMemberName("lavender")] Lavender,
+    Blush,
+    Apricot,
+    Butter,
+    Leaf,
+    Mint,
+    Sky,
+    Periwinkle,
+    Lavender,
+}
+
+/// <summary>
+/// Custom JSON converter that serializes WorkspaceColorId as lowercase strings
+/// for cross-platform compatibility with the macOS version.
+/// </summary>
+public class WorkspaceColorIdConverter : JsonConverter<WorkspaceColorId>
+{
+    public override WorkspaceColorId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var value = reader.GetString();
+        return value?.ToLowerInvariant() switch
+        {
+            "blush" => WorkspaceColorId.Blush,
+            "apricot" => WorkspaceColorId.Apricot,
+            "butter" => WorkspaceColorId.Butter,
+            "leaf" => WorkspaceColorId.Leaf,
+            "mint" => WorkspaceColorId.Mint,
+            "sky" => WorkspaceColorId.Sky,
+            "periwinkle" => WorkspaceColorId.Periwinkle,
+            "lavender" => WorkspaceColorId.Lavender,
+            _ => WorkspaceColorId.Sky, // Default fallback
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, WorkspaceColorId value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value switch
+        {
+            WorkspaceColorId.Blush => "blush",
+            WorkspaceColorId.Apricot => "apricot",
+            WorkspaceColorId.Butter => "butter",
+            WorkspaceColorId.Leaf => "leaf",
+            WorkspaceColorId.Mint => "mint",
+            WorkspaceColorId.Sky => "sky",
+            WorkspaceColorId.Periwinkle => "periwinkle",
+            WorkspaceColorId.Lavender => "lavender",
+            _ => "sky",
+        });
+    }
 }
 
 public static class WorkspaceColorIdExtensions
@@ -39,7 +81,7 @@ public static class WorkspaceColorIdExtensions
     };
 
     /// <summary>
-    /// Background-tinted variant of the colour (~92 % lightness / 0.92 alpha blend).
+    /// Background-tinted variant of the colour (~92% lightness / 0.92 alpha blend).
     /// Computed as a simple blend toward white.
     /// </summary>
     public static Color GetBackgroundColor(this WorkspaceColorId colorId)
