@@ -14,31 +14,17 @@
     <!-- Custom Main entry point for Velopack bootstrap -->
     <StartupObject>Arcmark.Program</StartupObject>
     
-    <!-- ── Publish / size optimization ─────────────────────────────── -->
+    <!-- ── Publish settings ────────────────────────────────────────── -->
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
-    <!-- Compress assemblies inside the single-file bundle (deflate) -->
+    <!-- Compress assemblies inside the single-file bundle -->
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 
     <!-- Disable ReadyToRun — smaller binary, trivial startup cost -->
     <PublishReadyToRun>false</PublishReadyToRun>
-
-    <!-- IL trimming — partial mode is safe for WPF (only trims opt-in assemblies) -->
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>partial</TrimMode>
-    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
   </PropertyGroup>
-
-  <!-- Root WPF + app assemblies so the trimmer doesn't remove reflection targets -->
-  <ItemGroup>
-    <TrimmerRootAssembly Include="PresentationFramework" />
-    <TrimmerRootAssembly Include="PresentationCore" />
-    <TrimmerRootAssembly Include="WindowsBase" />
-    <TrimmerRootAssembly Include="System.Xaml" />
-    <TrimmerRootAssembly Include="Arcmark" />
-  </ItemGroup>
 
   <!-- Velopack requires App.xaml to be a Page, not ApplicationDefinition -->
   <ItemGroup>
