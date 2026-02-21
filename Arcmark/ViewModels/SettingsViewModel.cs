@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Arcmark.Models;
 using Arcmark.Services;
+using Arcmark.Views;
 
 namespace Arcmark.ViewModels;
 
@@ -146,6 +147,14 @@ public partial class SettingsViewModel : ObservableObject
     {
         SidebarAttachmentEnabled = !SidebarAttachmentEnabled;
         UserSettings.Current.SidebarAttachmentEnabled = SidebarAttachmentEnabled;
+
+        if (Application.Current?.MainWindow is Views.MainWindow mainWindow)
+        {
+            if (SidebarAttachmentEnabled)
+                mainWindow.EnableAttachment();
+            else
+                mainWindow.DisableAttachment();
+        }
     }
 
     [RelayCommand]
@@ -153,6 +162,13 @@ public partial class SettingsViewModel : ObservableObject
     {
         SidebarPosition = position;
         UserSettings.Current.SidebarPosition = position == SidebarPosition.Left ? "left" : "right";
+
+        // Re-enable attachment with new position if currently attached
+        if (SidebarAttachmentEnabled && Application.Current?.MainWindow is Views.MainWindow mainWindow)
+        {
+            mainWindow.DisableAttachment();
+            mainWindow.EnableAttachment();
+        }
     }
 
     [RelayCommand]
@@ -233,6 +249,10 @@ public partial class SettingsViewModel : ObservableObject
         ShortcutDisplay = string.Empty;
         IsRecordingShortcut = false;
         UserSettings.Current.ToggleSidebarShortcutString = null;
+
+        // Re-register (unregister) the hotkey
+        if (Application.Current?.MainWindow is MainWindow mainWindow)
+            mainWindow.UpdateGlobalHotkey();
     }
 
     /// <summary>
@@ -258,6 +278,10 @@ public partial class SettingsViewModel : ObservableObject
         ShortcutDisplay = string.Join("+", parts);
         UserSettings.Current.ToggleSidebarShortcutString = ShortcutDisplay;
         IsRecordingShortcut = false;
+
+        // Re-register the hotkey with the new shortcut
+        if (Application.Current?.MainWindow is MainWindow mainWindow)
+            mainWindow.UpdateGlobalHotkey();
     }
 
     // ── Workspace management ───────────────────────────────────────────────────

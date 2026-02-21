@@ -35,4 +35,35 @@ public class KeyboardShortcut
         Key       = Key.A,
         Modifiers = ModifierKeys.Control | ModifierKeys.Shift,
     };
+
+    /// <summary>
+    /// Parses a shortcut string like "Ctrl+Shift+A" into a <see cref="KeyboardShortcut"/>.
+    /// Returns <c>null</c> if the string is empty or no valid key is found.
+    /// </summary>
+    public static KeyboardShortcut? Parse(string shortcutStr)
+    {
+        if (string.IsNullOrEmpty(shortcutStr)) return null;
+
+        var parts = shortcutStr.Split('+');
+        var modifiers = ModifierKeys.None;
+        Key key = Key.None;
+
+        foreach (var part in parts)
+        {
+            var trimmed = part.Trim();
+            switch (trimmed.ToLowerInvariant())
+            {
+                case "ctrl":  modifiers |= ModifierKeys.Control; break;
+                case "alt":   modifiers |= ModifierKeys.Alt;     break;
+                case "shift": modifiers |= ModifierKeys.Shift;   break;
+                case "win":   modifiers |= ModifierKeys.Windows; break;
+                default:
+                    if (Enum.TryParse<Key>(trimmed, true, out var k))
+                        key = k;
+                    break;
+            }
+        }
+
+        return key == Key.None ? null : new KeyboardShortcut { Key = key, Modifiers = modifiers };
+    }
 }

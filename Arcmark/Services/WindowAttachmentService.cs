@@ -193,11 +193,11 @@ public sealed class WindowAttachmentService : IDisposable
             case NativeMethods.EVENT_OBJECT_DESTROY:
                 // Browser window was closed
                 _browserHwnd = IntPtr.Zero;
-                Dispatcher.CurrentDispatcher.BeginInvoke(() => Delegate?.ShouldHideWindow());
+                Application.Current?.Dispatcher.BeginInvoke(() => Delegate?.ShouldHideWindow());
                 break;
 
             case NativeMethods.EVENT_SYSTEM_MINIMIZESTART:
-                Dispatcher.CurrentDispatcher.BeginInvoke(() => Delegate?.ShouldHideWindow());
+                Application.Current?.Dispatcher.BeginInvoke(() => Delegate?.ShouldHideWindow());
                 break;
 
             case NativeMethods.EVENT_SYSTEM_MINIMIZEEND:
@@ -313,7 +313,7 @@ public sealed class WindowAttachmentService : IDisposable
             string exeName = GetProcessExecutableName(pid);
             if (string.IsNullOrEmpty(exeName)) return true;
 
-            if (exeName.StartsWith(_browserProcessName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(exeName, _browserProcessName, StringComparison.OrdinalIgnoreCase))
             {
                 // Prefer the foreground window if it belongs to this process.
                 if (NativeMethods.GetForegroundWindow() == hWnd)
