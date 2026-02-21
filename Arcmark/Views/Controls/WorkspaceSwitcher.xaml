@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Arcmark.ViewModels"
              mc:Ignorable="d"
+             x:Name="SwitcherRoot"
              d:DesignHeight="44" d:DesignWidth="340">
 
     <UserControl.Resources>
@@ -109,17 +110,47 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <!-- Settings gear -->
+        <!-- Settings gear — dark background when settings panel is active -->
         <Button Grid.Column="0"
-                Style="{StaticResource IconButtonStyle}"
+                Width="32" Height="32"
+                BorderThickness="0"
+                Cursor="Hand"
                 Margin="4,0,0,0"
+                Padding="0"
                 ToolTip="Settings"
                 Command="{Binding SelectSettingsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                 WindowChrome.IsHitTestVisibleInChrome="True">
-            <TextBlock Text="⚙" FontSize="16"
-                       Foreground="{StaticResource DarkGrayBrush}"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center" />
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="Transparent" CornerRadius="8">
+                        <TextBlock x:Name="GearIcon"
+                                   Text="⚙" FontSize="15"
+                                   Foreground="{StaticResource DarkGrayBrush}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Selected: dark pill matching the workspace tab style -->
+                        <DataTrigger Binding="{Binding IsSettingsSelected, ElementName=SwitcherRoot}" Value="True">
+                            <Setter TargetName="Bg"       Property="Background">
+                                <Setter.Value><SolidColorBrush Color="#FF141414" /></Setter.Value>
+                            </Setter>
+                            <Setter TargetName="GearIcon" Property="Foreground" Value="White" />
+                        </DataTrigger>
+                        <!-- Hover (only when not selected) -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background">
+                                <Setter.Value><SolidColorBrush Color="#0F000000" /></Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background">
+                                <Setter.Value><SolidColorBrush Color="#1A000000" /></Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
         </Button>
 
         <!-- Scrollable tab list with left/right gradient shadows -->
@@ -139,29 +170,30 @@
                         <DataTemplate DataType="{x:Type vm:WorkspaceViewModel}">
                             <Button Style="{StaticResource WorkspaceTabStyle}"
                                     Margin="2,0"
+                                    Tag="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     Command="{Binding SelectWorkspaceCommand,
                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding Id}"
+                                    CommandParameter="{Binding}"
                                     WindowChrome.IsHitTestVisibleInChrome="True">
                                 <Button.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="Rename"
-                                                  Command="{Binding RenameWorkspaceCommand,
-                                                            Source={x:Reference TabScrollViewer}}"
-                                                  CommandParameter="{Binding Id}" />
+                                                  Command="{Binding PlacementTarget.Tag.RenameWorkspaceCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding}" />
                                         <MenuItem Header="Move Left"
-                                                  Command="{Binding MoveWorkspaceLeftCommand,
-                                                            Source={x:Reference TabScrollViewer}}"
-                                                  CommandParameter="{Binding Id}" />
+                                                  Command="{Binding PlacementTarget.Tag.MoveWorkspaceLeftCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding}" />
                                         <MenuItem Header="Move Right"
-                                                  Command="{Binding MoveWorkspaceRightCommand,
-                                                            Source={x:Reference TabScrollViewer}}"
-                                                  CommandParameter="{Binding Id}" />
+                                                  Command="{Binding PlacementTarget.Tag.MoveWorkspaceRightCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding}" />
                                         <Separator />
                                         <MenuItem Header="Delete Workspace"
-                                                  Command="{Binding DeleteWorkspaceCommand,
-                                                            Source={x:Reference TabScrollViewer}}"
-                                                  CommandParameter="{Binding Id}" />
+                                                  Command="{Binding PlacementTarget.Tag.DeleteWorkspaceCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding}" />
                                     </ContextMenu>
                                 </Button.ContextMenu>
                             </Button>

@@ -20,6 +20,10 @@ public class AppModel
         _store = store ?? new DataStore();
         _state = _store.Load();
 
+        // Always start on a workspace, not settings
+        if (_state.Workspaces.Count > 0)
+            _state.IsSettingsSelected = false;
+
         // Restore last selected workspace
         if (!_state.IsSettingsSelected)
         {

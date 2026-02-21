@@ -221,11 +221,24 @@ public partial class MainViewModel : ObservableObject
         BuildVisibleNodes();
     }
 
+    // ── Parameter resolution helper ───────────────────────────────────────────
+
+    private static Guid ResolveId(object? parameter) => parameter switch
+    {
+        Guid g => g,
+        WorkspaceViewModel vm => vm.Id,
+        NodeViewModel nvm => nvm.Id,
+        LinkViewModel lvm => lvm.Id,
+        _ => Guid.Empty
+    };
+
     // ── Commands: workspace ───────────────────────────────────────────────────
 
     [RelayCommand]
-    private void SelectWorkspace(Guid id)
+    private void SelectWorkspace(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.SelectWorkspace(id);
         SearchQuery = string.Empty;
     }
@@ -245,8 +258,10 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void RenameWorkspace(Guid id)
+    private void RenameWorkspace(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         var vm = Workspaces.FirstOrDefault(w => w.Id == id);
         if (vm != null) vm.IsRenaming = true;
     }
@@ -263,20 +278,26 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void DeleteWorkspace(Guid id)
+    private void DeleteWorkspace(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.DeleteWorkspace(id);
     }
 
     [RelayCommand]
-    private void MoveWorkspaceLeft(Guid id)
+    private void MoveWorkspaceLeft(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.MoveWorkspace(id, WorkspaceMoveDirection.Left);
     }
 
     [RelayCommand]
-    private void MoveWorkspaceRight(Guid id)
+    private void MoveWorkspaceRight(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.MoveWorkspace(id, WorkspaceMoveDirection.Right);
     }
 
@@ -295,14 +316,18 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void DeleteNode(Guid id)
+    private void DeleteNode(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.DeleteNode(id);
     }
 
     [RelayCommand]
-    private void RenameNode(Guid id)
+    private void RenameNode(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         var vm = VisibleNodes.FirstOrDefault(n => n.Id == id);
         if (vm != null) vm.IsRenaming = true;
     }
@@ -319,8 +344,10 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ToggleFolderExpanded(Guid id)
+    private void ToggleFolderExpanded(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         var node = _model.NodeById(id);
         if (node is FolderNode fn)
         {
@@ -335,8 +362,10 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenLink(Guid id)
+    private void OpenLink(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         var node = _model.NodeById(id);
         if (node is LinkNode ln)
         {
@@ -346,23 +375,29 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void PinLink(Guid id)
+    private void PinLink(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.PinLink(id);
     }
 
     // ── Commands: pinned tabs ─────────────────────────────────────────────────
 
     [RelayCommand]
-    private void OpenPinnedLink(Guid id)
+    private void OpenPinnedLink(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         var link = _model.PinnedLinkById(id);
         if (link != null) OpenUrl(link.Url);
     }
 
     [RelayCommand]
-    private void UnpinLink(Guid id)
+    private void UnpinLink(object? parameter)
     {
+        var id = ResolveId(parameter);
+        if (id == Guid.Empty) return;
         _model.UnpinLink(id);
     }
 

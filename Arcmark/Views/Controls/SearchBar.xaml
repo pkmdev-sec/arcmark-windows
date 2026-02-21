@@ -15,10 +15,14 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Background="#14000000"
+    <Border Background="#12000000"
             CornerRadius="8"
             Height="34"
+            BorderThickness="1"
             Padding="10,0,6,0">
+        <Border.BorderBrush>
+            <SolidColorBrush Color="#14000000" />
+        </Border.BorderBrush>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />

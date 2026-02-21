@@ -35,11 +35,14 @@
 
     <!-- ═══════════════════════════════════════════════════════════════
          FONT
+         Segoe UI Variable ships with Windows 11 and renders with
+         optical-size awareness; falls back to classic Segoe UI on
+         Windows 10. Body size kept at 13 to match macOS SF Pro sizing.
     ═══════════════════════════════════════════════════════════════ -->
-    <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
-    <sys:Double x:Key="BodyFontSize">14</sys:Double>
-    <sys:Double x:Key="SmallFontSize">12</sys:Double>
-    <sys:Double x:Key="LargeFontSize">16</sys:Double>
+    <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
+    <sys:Double x:Key="BodyFontSize">13</sys:Double>
+    <sys:Double x:Key="SmallFontSize">11</sys:Double>
+    <sys:Double x:Key="LargeFontSize">15</sys:Double>
 
     <!-- ═══════════════════════════════════════════════════════════════
          SPACING THICKNESS RESOURCES
@@ -71,7 +74,7 @@
     <sys:Double x:Key="IconMedium">18</sys:Double>
     <sys:Double x:Key="IconLarge">22</sys:Double>
     <sys:Double x:Key="ButtonHeight">32</sys:Double>
-    <sys:Double x:Key="RowHeight">44</sys:Double>
+    <sys:Double x:Key="RowHeight">38</sys:Double>
     <sys:Double x:Key="PinnedTileHeight">50</sys:Double>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -249,7 +252,7 @@
                     <StackPanel>
                         <Border x:Name="RowBorder"
                                 Background="Transparent"
-                                Height="44"
+                                Height="38"
                                 Padding="{Binding Indentation}">
                             <ContentPresenter ContentSource="Header"
                                               VerticalAlignment="Center" />

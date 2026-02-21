@@ -13,6 +13,7 @@
         MaxWidth="520"
         WindowStyle="None"
         AllowsTransparency="True"
+        Background="Transparent"
         ResizeMode="CanResize"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
 
@@ -32,13 +33,21 @@
                       CornerRadius="12" />
     </WindowChrome.WindowChrome>
 
-    <!-- Root border gives the window its rounded corners and background tint -->
+    <!-- Root border gives the window its rounded corners, background tint, and drop shadow -->
     <Border Background="{Binding WorkspaceBackground}"
             CornerRadius="12"
-            BorderThickness="1">
+            BorderThickness="1"
+            Margin="12,8,12,16">
         <Border.BorderBrush>
-            <SolidColorBrush Color="#20000000" />
+            <SolidColorBrush Color="#28000000" />
         </Border.BorderBrush>
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="22"
+                              ShadowDepth="4"
+                              Direction="270"
+                              Color="#000000"
+                              Opacity="0.22" />
+        </Border.Effect>
 
         <Grid>
             <Grid.RowDefinitions>
@@ -58,7 +67,7 @@
 
             <!-- ── Drag handle (transparent bar at top) ── -->
             <Border Grid.Row="0"
-                    Height="8"
+                    Height="28"
                     Background="Transparent"
                     WindowChrome.IsHitTestVisibleInChrome="False" />
 

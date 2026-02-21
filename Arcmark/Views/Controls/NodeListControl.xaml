@@ -35,29 +35,30 @@
                     <DataTemplate DataType="{x:Type vm:NodeViewModel}">
                         <!-- Node row -->
                         <Border x:Name="RowBorder"
-                                Height="44"
+                                Height="38"
                                 Background="Transparent"
                                 Padding="{Binding Indentation}"
+                                Tag="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 MouseEnter="OnRowMouseEnter"
                                 MouseLeave="OnRowMouseLeave"
                                 MouseLeftButtonUp="OnRowClicked">
                             <Border.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Rename"
-                                              Command="{Binding RenameNodeCommand,
-                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                              CommandParameter="{Binding Id}" />
+                                              Command="{Binding PlacementTarget.Tag.RenameNodeCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding}" />
                                     <MenuItem Header="Pin to top"
-                                              Command="{Binding PinLinkCommand,
-                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                              CommandParameter="{Binding Id}"
+                                              Command="{Binding PlacementTarget.Tag.PinLinkCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding}"
                                               Visibility="{Binding IsFolder,
                                                             Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                                     <Separator />
                                     <MenuItem Header="Delete"
-                                              Command="{Binding DeleteNodeCommand,
-                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                              CommandParameter="{Binding Id}" />
+                                              Command="{Binding PlacementTarget.Tag.DeleteNodeCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding}" />
                                 </ContextMenu>
                             </Border.ContextMenu>
 
@@ -200,7 +201,7 @@
                                         Cursor="Hand"
                                         Command="{Binding DeleteNodeCommand,
                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding Id}"
+                                        CommandParameter="{Binding}"
                                         Click="OnDeleteClicked">
                                     <Button.Style>
                                         <Style TargetType="Button">
@@ -254,29 +255,29 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Top scroll shadow -->
+        <!-- Top scroll shadow — fades dark→transparent, visible only when scrolled down -->
         <Rectangle x:Name="TopShadow"
-                   Height="24"
+                   Height="28"
                    VerticalAlignment="Top"
                    IsHitTestVisible="False"
                    Opacity="0">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#30000000" Offset="0" />
-                    <GradientStop Color="Transparent"   Offset="1" />
+                    <GradientStop Color="#22000000" Offset="0" />
+                    <GradientStop Color="#00000000" Offset="1" />
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
 
-        <!-- Bottom scroll shadow -->
+        <!-- Bottom scroll shadow — fades transparent→dark when more content below -->
         <Rectangle x:Name="BottomShadow"
-                   Height="24"
+                   Height="28"
                    VerticalAlignment="Bottom"
                    IsHitTestVisible="False">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="Transparent"   Offset="0" />
-                    <GradientStop Color="#30000000" Offset="1" />
+                    <GradientStop Color="#00000000" Offset="0" />
+                    <GradientStop Color="#22000000" Offset="1" />
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
