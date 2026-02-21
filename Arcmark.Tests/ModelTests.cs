@@ -81,8 +81,8 @@ public class ModelTests
         model.MoveNode(linkId, folderId, 0);
         var folder = model.NodeById(folderId) as FolderNode;
         Assert.NotNull(folder);
-        Assert.Single(folder!.Children);
-        Assert.Equal(linkId, folder.Children[0].Id);
+        Assert.Single(folder!.Folder.Children);
+        Assert.Equal(linkId, folder.Folder.Children[0].Id);
     }
 
     [Fact]
@@ -122,11 +122,11 @@ public class ModelTests
 
         var parent = model.NodeById(parentId) as FolderNode;
         Assert.NotNull(parent);
-        Assert.Single(parent!.Children);
+        Assert.Single(parent!.Folder.Children);
 
         var child = model.NodeById(childId) as FolderNode;
         Assert.NotNull(child);
-        Assert.Single(child!.Children);
+        Assert.Single(child!.Folder.Children);
     }
 
     [Fact]
@@ -160,6 +160,6 @@ public class ModelTests
         Assert.NotNull(folderId);
         var folder = model.NodeById(folderId!.Value) as FolderNode;
         Assert.NotNull(folder);
-        Assert.Equal(2, folder!.Children.Count);
+        Assert.Equal(2, folder!.Folder.Children.Count);
     }
 }

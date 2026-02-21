@@ -1,13 +1,17 @@
 using System.Text.Json;
 using Xunit;
 using Arcmark.Models;
-using Arcmark.Serialization;
 
 namespace Arcmark.Tests;
 
 public class JsonRoundTripTests
 {
-    private static readonly JsonSerializerOptions Options = ArcmarkJsonOptions.Default;
+    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true,
+        Converters = { new NodeJsonConverter(), new WorkspaceColorIdConverter() }
+    };
 
     [Fact]
     public void AppState_RoundTrips()
@@ -26,10 +30,7 @@ public class JsonRoundTripTests
                     [
                         new LinkNode
                         {
-                            Id = Guid.NewGuid(),
-                            Title = "Example",
-                            Url = "https://example.com",
-                            FaviconPath = null
+                            Link = new Link { Id = Guid.NewGuid(), Title = "Example", Url = "https://example.com", FaviconPath = null }
                         }
                     ],
                     PinnedLinks = []
@@ -56,13 +57,10 @@ public class JsonRoundTripTests
         // Verify the tagged union format: {"type":"folder","folder":{...}}
         var folder = new FolderNode
         {
-            Id = Guid.NewGuid(),
-            Name = "Work",
-            Children = [],
-            IsExpanded = true
+            Folder = new Folder { Id = Guid.NewGuid(), Name = "Work", Children = new(), IsExpanded = true }
         };
 
-        var json = JsonSerializer.Serialize<INode>(folder, Options);
+        var json = JsonSerializer.Serialize<Node>(folder, Options);
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
@@ -80,13 +78,10 @@ public class JsonRoundTripTests
         // Verify: {"type":"link","link":{...}}
         var link = new LinkNode
         {
-            Id = Guid.NewGuid(),
-            Title = "GitHub",
-            Url = "https://github.com",
-            FaviconPath = null
+            Link = new Link { Id = Guid.NewGuid(), Title = "GitHub", Url = "https://github.com", FaviconPath = null }
         };
 
-        var json = JsonSerializer.Serialize<INode>(link, Options);
+        var json = JsonSerializer.Serialize<Node>(link, Options);
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
@@ -174,15 +169,15 @@ public class JsonRoundTripTests
         var folder = workspace.Items[0] as FolderNode;
         Assert.NotNull(folder);
         Assert.Equal(Guid.Parse("660e8400-e29b-41d4-a716-446655440001"), folder!.Id);
-        Assert.Equal("Work", folder.Name);
-        Assert.True(folder.IsExpanded);
-        Assert.Single(folder.Children);
+        Assert.Equal("Work", folder.Folder.Name);
+        Assert.True(folder.Folder.IsExpanded);
+        Assert.Single(folder.Folder.Children);
 
-        var link = folder.Children[0] as LinkNode;
+        var link = folder.Folder.Children[0] as LinkNode;
         Assert.NotNull(link);
         Assert.Equal(Guid.Parse("770e8400-e29b-41d4-a716-446655440002"), link!.Id);
-        Assert.Equal("GitHub", link.Title);
-        Assert.Equal("https://github.com", link.Url);
-        Assert.Null(link.FaviconPath);
+        Assert.Equal("GitHub", link.Link.Title);
+        Assert.Equal("https://github.com", link.Link.Url);
+        Assert.Null(link.Link.FaviconPath);
     }
 }
