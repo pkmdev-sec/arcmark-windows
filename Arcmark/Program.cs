@@ -18,12 +18,7 @@ public static class Program
         // When the app is launched by the Velopack installer (install,
         // uninstall, or update), it handles those lifecycle events and
         // exits immediately. During normal launches it's a no-op.
-        VelopackApp.Build()
-            .WithFirstRun(v =>
-            {
-                // First run after install — could show a welcome dialog
-            })
-            .Run();
+        VelopackApp.Build().Run();
 
         // ── Normal WPF startup ──────────────────────────────────────────
         var app = new App();
