@@ -1,0 +1,128 @@
+<Window x:Class="Arcmark.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Arcmark.Views.Controls"
+        xmlns:local="clr-namespace:Arcmark.Views"
+        xmlns:vm="clr-namespace:Arcmark.ViewModels"
+        mc:Ignorable="d"
+        Title="Arcmark"
+        Width="340" Height="680"
+        MinWidth="280" MinHeight="420"
+        MaxWidth="520"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResize"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Views/Templates/ThemeResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- WindowChrome enables custom chrome with draggable title area -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="0"
+                      CornerRadius="12" />
+    </WindowChrome.WindowChrome>
+
+    <!-- Root border gives the window its rounded corners and background tint -->
+    <Border Background="{Binding WorkspaceBackground}"
+            CornerRadius="12"
+            BorderThickness="1">
+        <Border.BorderBrush>
+            <SolidColorBrush Color="#20000000" />
+        </Border.BorderBrush>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- Custom titlebar drag area -->
+                <RowDefinition Height="Auto" />
+                <!-- Workspace switcher -->
+                <RowDefinition Height="Auto" />
+                <!-- Search bar -->
+                <RowDefinition Height="Auto" />
+                <!-- Pinned tabs (hidden when empty) -->
+                <RowDefinition Height="Auto" />
+                <!-- Node list (takes remaining space) -->
+                <RowDefinition Height="*" />
+                <!-- Paste button -->
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- ── Drag handle (transparent bar at top) ── -->
+            <Border Grid.Row="0"
+                    Height="8"
+                    Background="Transparent"
+                    WindowChrome.IsHitTestVisibleInChrome="False" />
+
+            <!-- ── Workspace switcher ── -->
+            <controls:WorkspaceSwitcher
+                Grid.Row="1"
+                Workspaces="{Binding Workspaces}"
+                IsSettingsSelected="{Binding IsSettingsSelected}"
+                SelectWorkspaceCommand="{Binding SelectWorkspaceCommand}"
+                SelectSettingsCommand="{Binding SelectSettingsCommand}"
+                CreateWorkspaceCommand="{Binding CreateWorkspaceCommand}"
+                RenameWorkspaceCommand="{Binding RenameWorkspaceCommand}"
+                CommitRenameWorkspaceCommand="{Binding CommitRenameWorkspaceCommand}"
+                DeleteWorkspaceCommand="{Binding DeleteWorkspaceCommand}"
+                MoveWorkspaceLeftCommand="{Binding MoveWorkspaceLeftCommand}"
+                MoveWorkspaceRightCommand="{Binding MoveWorkspaceRightCommand}" />
+
+            <!-- ── Search bar ── -->
+            <controls:SearchBar
+                Grid.Row="2"
+                Margin="8,4,8,4"
+                SearchQuery="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <!-- ── Pinned tabs (collapsed when empty) ── -->
+            <controls:PinnedTabsGrid
+                Grid.Row="3"
+                Margin="8,0,8,4"
+                PinnedLinks="{Binding PinnedLinks}"
+                OpenPinnedLinkCommand="{Binding OpenPinnedLinkCommand}"
+                UnpinLinkCommand="{Binding UnpinLinkCommand}"
+                Visibility="{Binding HasPinnedLinks,
+                             Converter={StaticResource BoolToVisibilityConverter}}" />
+
+            <!-- ── Node list (main view) ── -->
+            <controls:NodeListControl
+                Grid.Row="4"
+                Nodes="{Binding VisibleNodes}"
+                WorkspaceBackground="{Binding WorkspaceBackground}"
+                OpenLinkCommand="{Binding OpenLinkCommand}"
+                DeleteNodeCommand="{Binding DeleteNodeCommand}"
+                RenameNodeCommand="{Binding RenameNodeCommand}"
+                CommitRenameNodeCommand="{Binding CommitRenameNodeCommand}"
+                ToggleFolderExpandedCommand="{Binding ToggleFolderExpandedCommand}"
+                PinLinkCommand="{Binding PinLinkCommand}"
+                MoveNodeToWorkspaceCommand="{Binding MoveNodeToWorkspaceCommand}"
+                OtherWorkspaces="{Binding OtherWorkspaces}"
+                Visibility="{Binding IsSettingsSelected,
+                             Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+
+            <!-- Settings view (shown when settings selected) -->
+            <local:SettingsView
+                Grid.Row="4"
+                Visibility="{Binding IsSettingsSelected,
+                             Converter={StaticResource BoolToVisibilityConverter}}" />
+
+            <!-- ── Paste button ── -->
+            <controls:PasteButton
+                Grid.Row="5"
+                Margin="8,4,8,8"
+                Visibility="{Binding IsSettingsSelected,
+                             Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                PasteLinksCommand="{Binding PasteLinksCommand}"
+                CreateFolderCommand="{Binding CreateFolderCommand}" />
+
+        </Grid>
+    </Border>
+</Window>

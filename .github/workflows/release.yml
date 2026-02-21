@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.4)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Read version
+        id: version
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "Version: $version"
+        shell: pwsh
+
+      - name: Restore
+        run: dotnet restore Arcmark.sln
+
+      - name: Build
+        run: dotnet build Arcmark.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Arcmark.Tests/Arcmark.Tests.csproj -c Release --no-build
+        continue-on-error: true
+
+      - name: Publish self-contained EXE
+        run: |
+          dotnet publish Arcmark/Arcmark.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:Version=${{ steps.version.outputs.VERSION }} `
+            -o ./publish
+        shell: pwsh
+
+      - name: Install vpk CLI
+        run: dotnet tool install -g vpk
+        continue-on-error: true
+
+      - name: Pack with Velopack
+        id: velopack
+        run: |
+          vpk pack `
+            --packId Arcmark `
+            --packVersion ${{ steps.version.outputs.VERSION }} `
+            --packDir ./publish `
+            --mainExe Arcmark.exe `
+            --outputDir ./releases
+        shell: pwsh
+        continue-on-error: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: "Arcmark v${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## Arcmark for Windows v${{ steps.version.outputs.VERSION }}
+            
+            ### Download
+            - **Installer (recommended):** Download `Arcmark-win-Setup.exe` — double-click to install, no admin needed
+            - **Portable:** Download `Arcmark.exe` — run directly, no installation required
+            
+            ### Notes
+            - Windows 10 (1903) or later required
+            - Windows may show a SmartScreen warning — click "More info" → "Run anyway"
+          files: |
+            releases/*Setup*
+            publish/Arcmark.exe
+          draft: false
+          prerelease: true
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arcmark-v${{ steps.version.outputs.VERSION }}
+          path: |
+            publish/Arcmark.exe
+            releases/*

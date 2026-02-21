@@ -1,0 +1,212 @@
+<UserControl x:Class="Arcmark.Views.Controls.WorkspaceSwitcher"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Arcmark.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="44" d:DesignWidth="340">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Views/Templates/ThemeResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Workspace tab button style -->
+            <Style x:Key="WorkspaceTabStyle" TargetType="Button">
+                <Setter Property="Background"      Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Cursor"          Value="Hand" />
+                <Setter Property="Padding"         Value="8,4,8,4" />
+                <Setter Property="Height"          Value="32" />
+                <Setter Property="FontFamily"      Value="{StaticResource AppFontFamily}" />
+                <Setter Property="FontSize"        Value="13" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="TabBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <!-- Color dot -->
+                                    <Ellipse Width="10" Height="10"
+                                             Fill="{Binding ColorBrush}"
+                                             Margin="0,0,5,0"
+                                             VerticalAlignment="Center" />
+                                    <!-- Name -->
+                                    <TextBlock x:Name="NameText"
+                                               Text="{Binding Name}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource DarkGrayBrush}"
+                                               FontWeight="Regular" />
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                    <Setter TargetName="TabBorder"  Property="Background">
+                                        <Setter.Value><SolidColorBrush Color="#FF141414" /></Setter.Value>
+                                    </Setter>
+                                    <Setter TargetName="NameText" Property="Foreground" Value="White" />
+                                    <Setter TargetName="NameText" Property="FontWeight"  Value="SemiBold" />
+                                </DataTrigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="TabBorder" Property="Background">
+                                        <Setter.Value><SolidColorBrush Color="#0F000000" /></Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Icon-only button (settings, add) -->
+            <Style x:Key="IconButtonStyle" TargetType="Button">
+                <Setter Property="Background"      Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Cursor"          Value="Hand" />
+                <Setter Property="Width"           Value="32" />
+                <Setter Property="Height"          Value="32" />
+                <Setter Property="Padding"         Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bg"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="8">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bg" Property="Background">
+                                        <Setter.Value><SolidColorBrush Color="#0F000000" /></Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bg" Property="Background">
+                                        <Setter.Value><SolidColorBrush Color="#1A000000" /></Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Height="44">
+        <Grid.ColumnDefinitions>
+            <!-- Settings icon -->
+            <ColumnDefinition Width="Auto" />
+            <!-- Scrollable tab list -->
+            <ColumnDefinition Width="*" />
+            <!-- Add button -->
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Settings gear -->
+        <Button Grid.Column="0"
+                Style="{StaticResource IconButtonStyle}"
+                Margin="4,0,0,0"
+                ToolTip="Settings"
+                Command="{Binding SelectSettingsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                WindowChrome.IsHitTestVisibleInChrome="True">
+            <TextBlock Text="⚙" FontSize="16"
+                       Foreground="{StaticResource DarkGrayBrush}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" />
+        </Button>
+
+        <!-- Scrollable tab list with left/right gradient shadows -->
+        <Grid Grid.Column="1">
+            <ScrollViewer x:Name="TabScrollViewer"
+                          Style="{StaticResource HiddenHScrollViewerStyle}"
+                          PreviewMouseWheel="OnTabScrollWheel"
+                          WindowChrome.IsHitTestVisibleInChrome="True">
+                <ItemsControl ItemsSource="{Binding Workspaces, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:WorkspaceViewModel}">
+                            <Button Style="{StaticResource WorkspaceTabStyle}"
+                                    Margin="2,0"
+                                    Command="{Binding SelectWorkspaceCommand,
+                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding Id}"
+                                    WindowChrome.IsHitTestVisibleInChrome="True">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Rename"
+                                                  Command="{Binding RenameWorkspaceCommand,
+                                                            Source={x:Reference TabScrollViewer}}"
+                                                  CommandParameter="{Binding Id}" />
+                                        <MenuItem Header="Move Left"
+                                                  Command="{Binding MoveWorkspaceLeftCommand,
+                                                            Source={x:Reference TabScrollViewer}}"
+                                                  CommandParameter="{Binding Id}" />
+                                        <MenuItem Header="Move Right"
+                                                  Command="{Binding MoveWorkspaceRightCommand,
+                                                            Source={x:Reference TabScrollViewer}}"
+                                                  CommandParameter="{Binding Id}" />
+                                        <Separator />
+                                        <MenuItem Header="Delete Workspace"
+                                                  Command="{Binding DeleteWorkspaceCommand,
+                                                            Source={x:Reference TabScrollViewer}}"
+                                                  CommandParameter="{Binding Id}" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Left shadow -->
+            <Rectangle IsHitTestVisible="False"
+                       Width="16"
+                       HorizontalAlignment="Left">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#30000000" Offset="0" />
+                        <GradientStop Color="Transparent"   Offset="1" />
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <!-- Right shadow -->
+            <Rectangle IsHitTestVisible="False"
+                       Width="16"
+                       HorizontalAlignment="Right">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="Transparent"   Offset="0" />
+                        <GradientStop Color="#30000000" Offset="1" />
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+        </Grid>
+
+        <!-- Add workspace button -->
+        <Button Grid.Column="2"
+                Style="{StaticResource IconButtonStyle}"
+                Margin="0,0,4,0"
+                ToolTip="New workspace"
+                Command="{Binding CreateWorkspaceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                WindowChrome.IsHitTestVisibleInChrome="True">
+            <TextBlock Text="+" FontSize="20" FontWeight="Light"
+                       Foreground="{StaticResource DarkGrayBrush}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Margin="0,-1,0,0" />
+        </Button>
+    </Grid>
+</UserControl>

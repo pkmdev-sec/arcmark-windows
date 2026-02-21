@@ -1,0 +1,19 @@
+<Application x:Class="Arcmark.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:util="clr-namespace:Arcmark.Utilities"
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Views/Templates/ThemeResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Value converters available application-wide -->
+            <util:BoolToVisibilityConverter        x:Key="BoolToVisibilityConverter" />
+            <util:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <util:BoolToStringConverter            x:Key="BoolToStringConverter" />
+            <util:StringToVisibilityConverter      x:Key="StringToVisibilityConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
