@@ -1,8 +1,7 @@
 <Application x:Class="Arcmark.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:util="clr-namespace:Arcmark.Utilities"
-
+             xmlns:util="clr-namespace:Arcmark.Utilities">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
